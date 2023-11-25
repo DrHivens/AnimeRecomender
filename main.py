@@ -1,1 +1,12 @@
 print('hello')
+
+
+
+#GET ANIME BY NAME
+#GET STUDIO OF THE ANIME
+#GET GENRE OF ANIME
+#GET DESCRIPTION OF ANIME
+#DRAW DIAGRAM
+
+
+#https://pypi.org/project/mal-api/
