@@ -1,8 +1,6 @@
 import requests
 import json
 
-
-#Using my anime list spi
 #Draw the algorithm
 #Create the algoithm
 #https://www.datacamp.com/tutorial/making-http-requests-in-python
@@ -13,7 +11,7 @@ import json
 
 
 def getAnimeData():
-    url = "https://api.jikan.moe/v4/anime?q=Attack on titan"
+    url = "https://api.jikan.moe/v4/anime?q=Dr stone"
 
     # Making a GET request to the Jikan API
     response = requests.get(url)
@@ -49,3 +47,13 @@ print(getAnimeTitle(anime_data))
 print(getAnimeStudio(anime_data))
 print(getAnimeGenre(anime_data))
 print(getAnimeDescription(anime_data))
+
+#create the user input
+#Saturday:
+#get the list of anime
+#get data on those anime and stock them in lists
+#Pause and rethink path
+#get list of recommendation and pre parse them
+
+#Sunday:
+#run a function on the reommendation to get their score
