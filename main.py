@@ -1,6 +1,7 @@
 import requests
-import json
+from collections import Counter
 
+import spacy
 #Draw the algorithm
 #Create the algoithm
 #https://www.datacamp.com/tutorial/making-http-requests-in-python
@@ -10,14 +11,19 @@ import json
 #https://docs.api.jikan.moe/
 
 
-def getAnimeData():
-    url = "https://api.jikan.moe/v4/anime?q=Dr stone"
+def getAnimeData(name):
+    url = f"https://api.jikan.moe/v4/anime?q={name}]"
 
     # Making a GET request to the Jikan API
     response = requests.get(url)
 
     if response.status_code == 200:
         json_data = response.json()
+
+        #checks if data is empty in json file
+        if 'data' in json_data and len(json_data['data']) == 0:
+            print(f"No anime found with the name '{name}'")
+            return None
 
         # if i want to write a json file 
         #with open("AnimeData.json", "w") as json_file:
@@ -29,7 +35,7 @@ def getAnimeData():
         return None
     
 #all info on that anime    
-anime_data = getAnimeData()
+#anime_data = getAnimeData()
 
 def getAnimeTitle(data):
     return data['data'][0]['title']
@@ -43,10 +49,7 @@ def getAnimeGenre(data):
 def getAnimeDescription(data):
     return data['data'][0]['synopsis']
 
-print(getAnimeTitle(anime_data))
-print(getAnimeStudio(anime_data))
-print(getAnimeGenre(anime_data))
-print(getAnimeDescription(anime_data))
+
 
 #create the user input
 #Saturday:
@@ -57,3 +60,45 @@ print(getAnimeDescription(anime_data))
 
 #Sunday:
 #run a function on the reommendation to get their score
+
+
+
+
+animeList = input("Write down your favorite anime seperated with a coma ,  :")
+animeList = animeList.split(',')
+print(animeList)
+
+animeListGenreRaw = []
+animeListGenre = []
+animeListStudio = []
+animeListDescription = []
+
+for i in animeList:
+    anime = getAnimeData(i)
+    animeListGenreRaw.extend(getAnimeGenre(anime)) # do i want to remove duplicates or nah
+    animeListStudio.append(getAnimeStudio(anime))
+    animeListDescription.append(getAnimeDescription(anime))
+    #print(getAnimeGenre(anime))
+
+genre_counts = Counter(animeListGenreRaw)
+print(animeListDescription)
+# Filter only the genres that appear more than once
+for genre, count in genre_counts.items():
+    if count > 1:
+        animeListGenre.append(genre)
+
+print(animeListGenre)
+
+#print(animeListStudio)
+
+#def getAnimeListProperties():
+
+
+nlp = spacy.load("en_core_web_sm")
+
+
+# its meh not the best... will have to think it through ---> needs better filtering
+for description in animeListDescription:
+    doc = nlp(description)
+    keywords = [token.text for token in doc if not token.is_stop and not token.is_punct and token.pos_ != 'DET']
+    print(keywords)
