@@ -1,7 +1,8 @@
 import requests
 from collections import Counter
-
 import spacy
+
+
 #Draw the algorithm
 #Create the algoithm
 #https://www.datacamp.com/tutorial/making-http-requests-in-python
@@ -66,7 +67,7 @@ def getAnimeDescription(data):
 
 animeList = input("Write down your favorite anime seperated with a coma ,  :")
 animeList = animeList.split(',')
-print(animeList)
+#print(animeList)
 
 animeListGenreRaw = []
 animeListGenre = []
@@ -81,13 +82,13 @@ for i in animeList:
     #print(getAnimeGenre(anime))
 
 genre_counts = Counter(animeListGenreRaw)
-print(animeListDescription)
+#print(animeListDescription)
 # Filter only the genres that appear more than once
 for genre, count in genre_counts.items():
     if count > 1:
         animeListGenre.append(genre)
 
-print(animeListGenre)
+#print(animeListGenre)
 
 #print(animeListStudio)
 
@@ -101,4 +102,5 @@ nlp = spacy.load("en_core_web_sm")
 for description in animeListDescription:
     doc = nlp(description)
     keywords = [token.text for token in doc if not token.is_stop and not token.is_punct and token.pos_ != 'DET']
-    print(keywords)
+    keywordsSummary = list(set(keywords))
+    print(keywordsSummary)
