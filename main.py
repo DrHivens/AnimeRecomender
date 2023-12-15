@@ -1,7 +1,8 @@
 import json
 import requests
-from collections import Counter
 import spacy
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 #https://www.datacamp.com/tutorial/making-http-requests-in-python
 #https://jikan.docs.apiary.io/#introduction/jikan
@@ -27,10 +28,6 @@ def getAnimeData(name):
     else:
         print("Failed to fetch data from the Jikan API")
         return None
-    
-
-def getAnimeTitle(data):
-    return data['data'][0]['title']
 
 def getAnimeStudio(data):
     return data['data'][0]['studios'][0]['name']
@@ -42,10 +39,6 @@ def getAnimeDescription(data):
     return data['data'][0]['synopsis']
 
 
-animeList = input("Write down your favorite anime seperated with a coma ,  :")
-animeList = animeList.split(',')
-
-
 def handler(listOfAnimeName):
     animeListGenreRaw = []
     animeListGenre = []
@@ -53,20 +46,14 @@ def handler(listOfAnimeName):
     animeListDescriptionRaw = []
     animeListDescription = []
 
-    filtered_anime_names = [i for i in listOfAnimeName if getAnimeData(i) is not None]
+    filtiredNames = [i for i in listOfAnimeName if getAnimeData(i) is not None]
 
-    for i in filtered_anime_names:
+    for i in filtiredNames:
         anime = getAnimeData(i)
         if anime is not None:
             animeListGenreRaw.extend(getAnimeGenre(anime))
             animeListStudio.append(getAnimeStudio(anime))
             animeListDescriptionRaw.append(getAnimeDescription(anime))
-
-    #genre_counts = Counter(animeListGenreRaw)
-    # Filter only the genres that appear more than once
-    #for genre, count in genre_counts.items():
-        #if count > 1:
-            #animeListGenre.append(genre)
 
     nlp = spacy.load("en_core_web_sm")
 
@@ -81,10 +68,9 @@ def handler(listOfAnimeName):
 
     # Write attributes to a JSON file
     data = {
-        "Studio": animeListStudio,
-        "Description": animeListDescription,
-        "Genre": animeListGenre,
-        "Filtered_Anime_Names": filtered_anime_names
+        "studios": animeListStudio,
+        "synopsis": animeListDescription,
+        "genres": animeListGenre,
     }
 
     with open("MyAnimeList.json", 'w') as json_file:
@@ -92,5 +78,48 @@ def handler(listOfAnimeName):
 
 
 
+#AI helped
+def load_data(file_name):
+    with open(file_name, 'r', encoding='utf-8') as file:
+        return json.load(file)
+    
+
+def getRec(info, list):
+    mySynopsis = ' '.join(info['synopsis'])
+    myGenres = ' '.join(info['genres'])
+
+    vectorizer = CountVectorizer().fit([mySynopsis, myGenres])
+
+    topAnimes = []  # Store top similar items
+    similarities = []  # Store corresponding similarity scores
+
+    for item in list:
+        itemSynopsis = item.get('synopsis', '')
+        itemGenres = ' '.join(item.get('genres', []))
+
+        vector = vectorizer.transform([itemSynopsis, itemGenres])
+        similarity = cosine_similarity(vector)[0][0]  # Extract the similarity value
+
+        if len(topAnimes) < 5:
+            topAnimes.append(item.get('title', ''))
+            similarities.append(similarity)
+        else:
+            min_similarity_index = similarities.index(min(similarities))
+            if similarity > similarities[min_similarity_index]:
+                topAnimes[min_similarity_index] = item.get('title', '')
+                similarities[min_similarity_index] = similarity
+
+    return topAnimes
+#end of help
+
+
+
+animeList = input("Write down your favorite anime seperated with a coma ,  :")
+animeList = animeList.split(',')
 
 handler(animeList)
+myAnimeTaste = load_data('MyAnimeList.json')
+trendingAnimeList = load_data('Anime_info.json')
+
+recommmendedAnime = getRec(myAnimeTaste, trendingAnimeList)
+print(recommmendedAnime)
