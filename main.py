@@ -4,14 +4,6 @@ import spacy
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 
-#https://www.datacamp.com/tutorial/making-http-requests-in-python
-#https://jikan.docs.apiary.io/#introduction/jikan
-#https://docs.api.jikan.moe/#tag/anime/operation/getAnimeFullById
-#https://github.com/jikan-me/jikan-rest/issues/189
-#https://docs.api.jikan.moe/
-#https://docs.python.org/3/library/collections.html#collections.Counter
-
-
 def getAnimeData(name):
     url = f"https://api.jikan.moe/v4/anime?q={name}]"
 
@@ -78,7 +70,7 @@ def handler(listOfAnimeName):
 
 
 
-#AI helped
+#stackoverflow code and copilot
 def load_data(file_name):
     with open(file_name, 'r', encoding='utf-8') as file:
         return json.load(file)
